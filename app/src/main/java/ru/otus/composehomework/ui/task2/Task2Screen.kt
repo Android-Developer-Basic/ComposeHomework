@@ -29,8 +29,8 @@ import androidx.compose.ui.unit.sp
  */
 @Composable
 fun Task2Screen() {
-    var welcomeText by remember { mutableStateOf("Добро пожаловать!") }
     var count by remember { mutableStateOf(0) }
+    val welcomeText = "Кнопка нажата $count раз!"
     
     Column(
         modifier = Modifier
