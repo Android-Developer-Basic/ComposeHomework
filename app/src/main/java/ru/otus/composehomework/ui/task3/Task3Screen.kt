@@ -1,6 +1,21 @@
 package ru.otus.composehomework.ui.task3
 
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.material3.*
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
+import ru.otus.composehomework.R
+import androidx.compose.foundation.shape.RoundedCornerShape
 
 /**
  * Задание 3: Подключение ViewModel и комплексное состояние (MVI паттерн)
@@ -44,5 +59,136 @@ import androidx.compose.runtime.Composable
  */
 @Composable
 fun Task3Screen() {
-    // TODO: Реализуйте экран с ViewModel и формой
+    val viewModel: Task3ViewModel = viewModel()
+    val state by viewModel.state.collectAsState()
+
+    Column(
+        modifier = Modifier.fillMaxSize().padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(32.dp)
+    )
+    {
+        Text( text = "Форма обратной связи",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 10.dp) )
+
+        TextField(
+            value = state.name,
+            onValueChange = { viewModel.handleIntent(Task3Intent.NameChanged(it)) },
+            label = { Text("Имя") },
+            placeholder = { Text(stringResource(R.string.name_hint)) },
+            modifier = Modifier.fillMaxWidth(),
+            isError = state.validationErrors?.errors?.get(FieldType.NAME) != null,
+            supportingText = state.validationErrors?.errors?.get(FieldType.NAME)?.let {
+                { Text(it) }
+            },
+            enabled = state.uiState !is UiState.Loading )
+
+        TextField(
+            value = state.email,
+            onValueChange = { viewModel.handleIntent(Task3Intent.EmailChanged(it)) },
+            label = { Text("Email") },
+            placeholder = { Text(stringResource(R.string.email_hint)) },
+            modifier = Modifier.fillMaxWidth(),
+            isError = state.validationErrors?.errors?.get(FieldType.EMAIL) != null,
+            supportingText = state.validationErrors?.errors?.get(FieldType.EMAIL)?.let {
+                { Text(it) }
+            },
+            enabled = state.uiState !is UiState.Loading)
+
+        TextField( value = state.message,
+            onValueChange = { viewModel.handleIntent(Task3Intent.MessageChanged(it)) },
+            label = { Text("Сообщение") },
+            placeholder = { Text(stringResource(R.string.message_hint)) },
+            modifier = Modifier.fillMaxWidth(),
+            minLines = 3,
+            isError = state.validationErrors?.errors?.get(FieldType.MESSAGE) != null,
+            supportingText = state.validationErrors?.errors?.get(FieldType.MESSAGE)?.let {
+                { Text(it) }
+            },
+            enabled = state.uiState !is UiState.Loading )
+
+        Row( modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp) )
+        {
+            Button( onClick = { viewModel.handleIntent(Task3Intent.SubmitClicked) },
+                enabled = state.uiState !is UiState.Loading,
+                modifier = Modifier.weight(1f) )
+            {
+                Text(stringResource(R.string.submit))
+            }
+
+            OutlinedButton( onClick = { viewModel.handleIntent(Task3Intent.ClearClicked) },
+                enabled = state.uiState !is UiState.Loading,
+                modifier = Modifier.weight(1f) )
+            {
+                Text("Очистить")
+            }
+        }
+
+        when (state.uiState) {
+            is UiState.Loading -> {
+                Box(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp), contentAlignment = Alignment.Center)
+                {
+                    LinearProgressIndicator()
+                }
+            }
+
+            is UiState.Success -> {
+                val successState = state.uiState as UiState.Success
+                Card( modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)) )
+                {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp))
+                    {
+                        Text(
+                            text = "Успешно!",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold)
+
+                        Text(
+                            text = "Форма успешно отправлена!",
+                            style = MaterialTheme.typography.bodyMedium)
+
+                        Text(
+                            text = "ID: ${successState.result.id}",
+                            style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+            }
+
+            is UiState.Error -> {
+                val errorState = state.uiState as UiState.Error
+                Card( modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f) )
+                ) {
+                    Column( modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp) )
+                    {
+                        Text( text = "Ошибка",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.error )
+
+                        Text( text = errorState.message,
+                            style = MaterialTheme.typography.bodyMedium )
+
+                        Button(
+                            onClick = { viewModel.handleIntent(Task3Intent.RetryClicked) },
+                            modifier = Modifier.fillMaxWidth() )
+                        {
+                            Text(stringResource(R.string.retry))
+                        }
+                    }
+                }
+            }
+            is UiState.ValidationError -> {}
+            is UiState.Idle -> {}
+        }
+    }
 }
