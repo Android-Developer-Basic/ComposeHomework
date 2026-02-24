@@ -14,4 +14,5 @@
     <string name="retry">Повторить</string>
     <string name="loading">Загрузка...</string>
     <string name="button_pressed">Кнопка нажата!</string>
+    <string name="button_pressed_count">Кнопка нажата %d раз!</string>
 </resources>
