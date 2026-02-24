@@ -11,8 +11,17 @@
     <string name="email_hint">Введите email</string>
     <string name="message_hint">Введите сообщение</string>
     <string name="submit">Отправить</string>
+    <string name="clear">Очистить</string>
     <string name="retry">Повторить</string>
     <string name="loading">Загрузка...</string>
     <string name="button_pressed">Кнопка нажата!</string>
     <string name="button_pressed_count">Кнопка нажата %d раз!</string>
+    <string name="filling_form_title">Форма обратной связи</string>
+    <string name="name_label">Имя</string>
+    <string name="email_label">Email</string>
+    <string name="message_label">Сообщение</string>
+    <string name="success_title">Успешно!</string>
+    <string name="success_text">Форма успешно отправлена!</string>
+    <string name="success_id">ID: %d</string>
+    <string name="error_title">Ошибка</string>
 </resources>
